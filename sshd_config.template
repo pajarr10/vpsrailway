@@ -1,0 +1,41 @@
+# sshd_config template — filled in by entrypoint.sh at container start.
+# Placeholders: __PORT__ and __SSH_USERNAME__
+
+Port __PORT__
+ListenAddress 0.0.0.0
+Protocol 2
+
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# --- Authentication: public key only, no root, no passwords ---------------
+PermitRootLogin no
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+UsePAM yes
+
+AllowUsers __SSH_USERNAME__
+
+# --- Session / hygiene ------------------------------------------------------
+X11Forwarding no
+AllowTcpForwarding no
+PermitTunnel no
+PrintMotd yes
+PrintLastLog yes
+AcceptEnv LANG LC_*
+ClientAliveInterval 60
+ClientAliveCountMax 3
+LoginGraceTime 30
+MaxStartups 5
+MaxAuthTries 4
+
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Container has no syslog daemon; log to stderr so Railway captures it.
+SyslogFacility AUTH
+LogLevel INFO
